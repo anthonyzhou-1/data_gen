@@ -18,10 +18,10 @@ def simulate(cx, cy, nx, ny, SAVE_STEPS, TOTAL_TIME, seed):
     u = torch.Tensor(f.sample(grid=grid, seed=seed))
 
     all_us = torch.empty((nt, nx, ny))
-    all_vs = torch.empty((nt, nx, ny))
     times = torch.empty(nt)
+    all_us[0] = u.clone()
 
-    for n in range(1, nt+1): ##loop across number of time steps
+    for n in range(1, nt): ##loop across number of time steps
         x_adv = -dt*n*cx
         y_adv = -dt*n*cy
 
