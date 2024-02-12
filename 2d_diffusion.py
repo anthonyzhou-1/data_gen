@@ -70,7 +70,7 @@ def main():
         nu = nus[i]
         key = 'Heat_{0:.8f}'.format(nu)
         print("NU: {0:.8f}".format(nu))
-        u, grid, times = simulate(nu, SAVE_STEPS, TOTAL_TIME, i)
+        u, grid, times = simulate(nu, nx, ny, SAVE_STEPS, TOTAL_TIME, i)
 
         dataset = h5f.create_group(key)
         dataset['u'] = u
