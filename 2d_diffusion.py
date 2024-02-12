@@ -1,25 +1,24 @@
 import numpy as np
 import torch
-from tqdm import tqdm
 
 import h5py
 from utils import RandomSin
+from scipy.stats import uniform
 
 ###variable declarations
-nx = 128
-ny = 128
+nx = 256
+ny = 256
+J = 5
+lj = 3
+length = 2
 
-def simulate(nu, SAVE_STEPS, TOTAL_TIME, idx):
-    # Define constants
+def simulate(nu, nx, ny, SAVE_STEPS, TOTAL_TIME, idx):
     dx = 2 / (nx - 1)
-    dy = 2 / (ny - 1)
-    sigma = 0.0001*nu/(dx*dy)
-    dt = sigma * dx * dy / nu
-
+    dt = 0.0001
     nt = int(TOTAL_TIME/dt)
     if(nu*dt/(dx**2) >= 0.5):
         raise ValueError("Unstable Simulation.")
-    SAVE_EVERY = int(nt/SAVE_STEPS) + 1
+    SAVE_EVERY = int(nt/SAVE_STEPS)
 
     # Define domain and solutions
     x = np.linspace(-1, 1, nx)
@@ -30,56 +29,54 @@ def simulate(nu, SAVE_STEPS, TOTAL_TIME, idx):
 
     ###Assign initial conditions
     f = RandomSin((nx, ny))
-    u = f.sample(grid=grid, seed=idx)
+    u = torch.Tensor(f.sample(grid=grid, seed=idx))
+    u0 = u.clone()
 
     all_us = torch.empty((SAVE_STEPS, nx, ny))
     times = torch.empty(SAVE_STEPS)
-    all_us[0] = u.clone()
-    
-    for n in range(nt-1): ##loop across number of time steps
+
+    ## Save initial condition
+    all_us[0] = u0
+    times[0] = 0
+
+    for n in range(nt-1): ##loop across number of time steps (nt-1 because we already have the initial condition)
         un = u.clone()
-    
+
         # Calculate finite differences for diffusion term
         diff_ux = (torch.roll(un, shifts=(1), dims=(1)) + torch.roll(un, shifts=(-1), dims=(1)) - 2*un)
         diff_uy = (torch.roll(un, shifts=(1), dims=(0)) + torch.roll(un, shifts=(-1), dims=(0)) - 2*un)
         diff_u = diff_ux + diff_uy
-    
+
         # Calculate update
         u = nu*dt*diff_u/dx**2 + u
-    
+
         if((n+1)%SAVE_EVERY == 0):
-            all_us[(n)//SAVE_EVERY] = u
-            times[(n)//SAVE_EVERY] = TOTAL_TIME*(n+1)/nt
+            all_us[(n+1)//SAVE_EVERY] = u
+            times[(n+1)//SAVE_EVERY] = TOTAL_TIME*(n+1)/nt
 
     return all_us, grid, times
             
 
 def main():
     SAVE_STEPS = 100
-    TOTAL_TIME = 10
-    nt = 10000
-    inits = 200
-    nus = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1]
-    for j in [-5,-4]:
-        for i in np.arange(1, 10, 1):
-            nus.append(float("{0}e{1}".format(i, j)))
-    nus.append(1e-3)
-    h5f = h5py.File("../2D_NS_DATA/gaussian_2d_Heat_{}s_{}inits_{}nus_ns_match.h5".format(TOTAL_TIME, inits,
-                                                                       len(nus)), 'w')
-    idx = 0
-    for nu in nus:
-        print("NU: {0:.4f}, TIMESTEPS: {1}".format(nu, nt))
-        for i in tqdm(range(inits)):
-            key = 'Heat_{}_{}'.format(nu, i)
-            u, grid, times = simulate(nu, SAVE_STEPS, TOTAL_TIME, idx)
+    TOTAL_TIME = 2
+    num_samples = 1024
+    high = 2e-2
+    low = 3e-3
+    h5f = h5py.File(f"./pde_data/2d_heat_{num_samples}ns_{nx}nx_{ny}ny_{low}_{high}_nu.h5", 'w')
 
-            dataset = h5f.create_group(key)
-            dataset['u'] = u
-            dataset['nu'] = nu
-            dataset['grid'] = grid
-            dataset['time'] = times
-            idx += 1
+    nus = uniform.rvs(low, high-low, size=num_samples) # Sample from uniform distribution [3e-3, 2e-2]
+    for i in range(num_samples):
+        nu = nus[i]
+        key = 'Heat_{0:.8f}'.format(nu)
+        print("NU: {0:.8f}".format(nu))
+        u, grid, times = simulate(nu, SAVE_STEPS, TOTAL_TIME, i)
 
+        dataset = h5f.create_group(key)
+        dataset['u'] = u
+        dataset['nu'] = nu
+        dataset['grid'] = grid
+        dataset['time'] = times
 
 if __name__ == '__main__':
     main()
