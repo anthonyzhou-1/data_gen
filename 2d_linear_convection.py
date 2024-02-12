@@ -60,7 +60,7 @@ def main():
         cy = cys[i]
         print("CX: {0:.4f}, CY: {1:.4f}".format(cx, cy))
         key = '{0:.4f}_{1:.4f}'.format(cx, cy)
-        u, grid, times = simulate(cx, cy, SAVE_STEPS, TOTAL_TIME, i)
+        u, grid, times = simulate(cx, cy, SAVE_STEPS, TOTAL_TIME, i + 10000)
 
         dataset = h5f.create_group(key)
         dataset['coeffs'] = [cx, cy]
