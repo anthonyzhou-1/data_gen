@@ -99,7 +99,7 @@ def main():
     nx = 256
     ny = 256
 
-    num_samples = 1024
+    num_samples = 128
     nu_low = 7.5e-3
     nu_high = 1.5e-2
     nus = uniform.rvs(nu_low, nu_high-nu_low, size=num_samples) # Sample from uniform distribution [7.5e-5, 1.5e-2]
@@ -117,7 +117,7 @@ def main():
         
         print("NU: {0:.4f}, CX: {1:.4f}, CY: {2:.4f}".format(nu, cx, cy))
         key = 'Burgers_{0:.4f}_{1:.4f}_{2:.4f}'.format(nu, cx, cy)
-        u, v, grid, times = simulate(nu, cx, cy, nx, ny, SAVE_STEPS, TOTAL_TIME, i + 5000)
+        u, v, grid, times = simulate(nu, cx, cy, nx, ny, SAVE_STEPS, TOTAL_TIME, i + 40000)
 
         u = u[:, ::2, ::2]
         v = v[:, ::2, ::2]

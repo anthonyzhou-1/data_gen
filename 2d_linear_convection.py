@@ -47,10 +47,10 @@ def simulate(cx, cy, SAVE_STEPS, TOTAL_TIME, seed):
 def main():
     SAVE_STEPS = 100
     TOTAL_TIME = 2
-    num_samples = 1024
+    num_samples = 128
     low = 0.1
     high = 2.5
-    h5f = h5py.File(f"./pde_data/2d_adv_{num_samples}ns_{nx}nx_{ny}ny_{low}_{high}_c.h5", 'w')
+    h5f = h5py.File(f"./pde_data/2d_adv_test_{num_samples}ns_{nx}nx_{ny}ny_{low}_{high}_c.h5", 'w')
 
     cxs = uniform.rvs(low, high-low, size=num_samples) # Sample from uniform distribution [.1, 2.5]
     cys = uniform.rvs(low, high-low, size=num_samples) # Sample from uniform distribution [.1, 2.5]
@@ -60,7 +60,7 @@ def main():
         cy = cys[i]
         print("CX: {0:.4f}, CY: {1:.4f}".format(cx, cy))
         key = '{0:.4f}_{1:.4f}'.format(cx, cy)
-        u, grid, times = simulate(cx, cy, SAVE_STEPS, TOTAL_TIME, i + 10000)
+        u, grid, times = simulate(cx, cy, SAVE_STEPS, TOTAL_TIME, i + 20000)
 
         dataset = h5f.create_group(key)
         dataset['coeffs'] = [cx, cy]

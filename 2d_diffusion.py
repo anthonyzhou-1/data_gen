@@ -60,17 +60,17 @@ def simulate(nu, nx, ny, SAVE_STEPS, TOTAL_TIME, idx):
 def main():
     SAVE_STEPS = 100
     TOTAL_TIME = 2
-    num_samples = 1024
+    num_samples = 128
     high = 2e-2
     low = 3e-3
-    h5f = h5py.File(f"./pde_data/2d_heat_{num_samples}ns_{nx}nx_{ny}ny_{low}_{high}_nu.h5", 'w')
+    h5f = h5py.File(f"./pde_data/2d_heat_test_{num_samples}ns_{nx}nx_{ny}ny_{low}_{high}_nu.h5", 'w')
 
     nus = uniform.rvs(low, high-low, size=num_samples) # Sample from uniform distribution [3e-3, 2e-2]
     for i in range(num_samples):
         nu = nus[i]
         key = 'Heat_{0:.8f}'.format(nu)
         print("NU: {0:.8f}".format(nu))
-        u, grid, times = simulate(nu, nx, ny, SAVE_STEPS, TOTAL_TIME, i)
+        u, grid, times = simulate(nu, nx, ny, SAVE_STEPS, TOTAL_TIME, i+30000)
 
         dataset = h5f.create_group(key)
         dataset['u'] = u
