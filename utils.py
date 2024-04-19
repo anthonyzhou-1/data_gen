@@ -2,7 +2,6 @@ import numpy as np
 import torch
 from torch.nn import functional as F
 from typing import Tuple
-from mp_code.PDEs import *
 import matplotlib.pyplot as plt
 from FyeldGenerator import generate_field
 import matplotlib.animation as animation

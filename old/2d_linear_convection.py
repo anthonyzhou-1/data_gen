@@ -3,6 +3,7 @@ import torch
 from utils import RandomSin
 import h5py
 from scipy.stats import uniform
+import argparse
 
 nx = 256
 ny = 256
@@ -68,6 +69,32 @@ def main():
         dataset['grid'] = grid
         dataset['time'] = times
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description='Generating PDE data')
+    parser.add_argument('--experiment', type=str, default='KdV',
+                        help='Experiment for which data should create for: [KdV, KS, Burgers]')
+    parser.add_argument('--device', type=str, default='cpu',
+                        help='Used device')
+    parser.add_argument('--nt', type=int, default=250,
+                        help='Time steps used for solving')
+    parser.add_argument('--nx', type=int, default=256,
+                        help='Spatial resolution')
+    parser.add_argument('--L', type=float, default=128.,
+                        help='Length for which we want to solve the PDE')
+    parser.add_argument('--train_samples', type=int, default=2 ** 5,
+                        help='Samples in the training dataset')
+    parser.add_argument('--valid_samples', type=int, default=2 ** 5,
+                        help='Samples in the validation dataset')
+    parser.add_argument('--test_samples', type=int, default=2 ** 5,
+                        help='Samples in the test dataset')
+    parser.add_argument('--batch_size', type=int, default=1,
+                        help='Batch size used for creating training, val, and test dataset. So far the code only works for batch_size==1')
+    parser.add_argument('--suffix', type=str, default='',
+                        help='Suffix for additional datasets')
+    parser.add_argument('--log', type=eval, default=False,
+                        help='pip the output to log file')
+
+    args = parser.parse_args()
+    main(args)
 

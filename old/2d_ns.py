@@ -7,7 +7,7 @@ import matplotlib
 
 # from drawnow import drawnow, figure
 
-from random_fields import GaussianRF
+from old.random_fields import GaussianRF
 
 from timeit import default_timer
 
